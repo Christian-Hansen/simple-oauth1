@@ -149,7 +149,7 @@ static inline NSDictionary *AFParametersFromQueryString(NSString *queryString)
 }
 
 @property (nonatomic, weak) UIWebView *webView;
-
+@property (nonatomic, strong) UIActivityIndicatorView *loadingIndicator;
 @end
 
 @implementation OAuth1Controller
@@ -158,6 +158,13 @@ static inline NSDictionary *AFParametersFromQueryString(NSString *queryString)
 {
     self.webView = webWiew;
     self.webView.delegate = self;
+    
+    self.loadingIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    self.loadingIndicator.color = [UIColor blackColor];
+    [self.loadingIndicator startAnimating];
+    self.loadingIndicator.center = self.webView.center;
+    [self.webView addSubview:self.loadingIndicator];
+    
     [self obtainRequestTokenWithCompletion:^(NSError *error, NSDictionary *responseParams)
      {
          NSString *oauth_token_secret = responseParams[@"oauth_token_secret"];
@@ -265,6 +272,11 @@ static inline NSDictionary *AFParametersFromQueryString(NSString *queryString)
     [self.webView loadRequest:request];
 }
 
+- (void)webViewDidFinishLoad:(UIWebView *)webView
+{
+    [self.loadingIndicator removeFromSuperview];
+    self.loadingIndicator = nil;
+}
 
 #pragma mark - Webview delegate used to detect call back in step 2
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
