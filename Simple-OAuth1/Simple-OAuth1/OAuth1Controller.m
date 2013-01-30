@@ -27,16 +27,16 @@ typedef void (^WebWiewDelegateHandler)(NSDictionary *oauthParams);
 
 
 //--- The part below is from AFNetworking---
-static NSString * AFPercentEscapedQueryStringPairMemberFromStringWithEncoding(NSString *string, NSStringEncoding encoding) {
-    static NSString * const kAFCharactersToBeEscaped = @":/?&=;+!@#$()~";
-    static NSString * const kAFCharactersToLeaveUnescaped = @"[].";
+static NSString * CHPercentEscapedQueryStringPairMemberFromStringWithEncoding(NSString *string, NSStringEncoding encoding) {
+    static NSString * const kCHCharactersToBeEscaped = @":/?&=;+!@#$()~";
+    static NSString * const kCHCharactersToLeaveUnescaped = @"[].";
     
-	return (__bridge_transfer  NSString *)CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (__bridge CFStringRef)string, (__bridge CFStringRef)kAFCharactersToLeaveUnescaped, (__bridge CFStringRef)kAFCharactersToBeEscaped, CFStringConvertNSStringEncodingToEncoding(encoding));
+	return (__bridge_transfer  NSString *)CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (__bridge CFStringRef)string, (__bridge CFStringRef)kCHCharactersToLeaveUnescaped, (__bridge CFStringRef)kCHCharactersToBeEscaped, CFStringConvertNSStringEncodingToEncoding(encoding));
 }
 
 #pragma mark -
 
-@interface AFQueryStringPair : NSObject
+@interface CHQueryStringPair : NSObject
 @property (readwrite, nonatomic, strong) id field;
 @property (readwrite, nonatomic, strong) id value;
 
@@ -45,7 +45,7 @@ static NSString * AFPercentEscapedQueryStringPairMemberFromStringWithEncoding(NS
 - (NSString *)URLEncodedStringValueWithEncoding:(NSStringEncoding)stringEncoding;
 @end
 
-@implementation AFQueryStringPair
+@implementation CHQueryStringPair
 @synthesize field = _field;
 @synthesize value = _value;
 
@@ -63,9 +63,9 @@ static NSString * AFPercentEscapedQueryStringPairMemberFromStringWithEncoding(NS
 
 - (NSString *)URLEncodedStringValueWithEncoding:(NSStringEncoding)stringEncoding {
     if (!self.value || [self.value isEqual:[NSNull null]]) {
-        return AFPercentEscapedQueryStringPairMemberFromStringWithEncoding([self.field description], stringEncoding);
+        return CHPercentEscapedQueryStringPairMemberFromStringWithEncoding([self.field description], stringEncoding);
     } else {
-        return [NSString stringWithFormat:@"%@=%@", AFPercentEscapedQueryStringPairMemberFromStringWithEncoding([self.field description], stringEncoding), AFPercentEscapedQueryStringPairMemberFromStringWithEncoding([self.value description], stringEncoding)];
+        return [NSString stringWithFormat:@"%@=%@", CHPercentEscapedQueryStringPairMemberFromStringWithEncoding([self.field description], stringEncoding), CHPercentEscapedQueryStringPairMemberFromStringWithEncoding([self.value description], stringEncoding)];
     }
 }
 
@@ -73,23 +73,23 @@ static NSString * AFPercentEscapedQueryStringPairMemberFromStringWithEncoding(NS
 
 #pragma mark -
 
-extern NSArray * AFQueryStringPairsFromDictionary(NSDictionary *dictionary);
-extern NSArray * AFQueryStringPairsFromKeyAndValue(NSString *key, id value);
+extern NSArray * CHQueryStringPairsFromDictionary(NSDictionary *dictionary);
+extern NSArray * CHQueryStringPairsFromKeyAndValue(NSString *key, id value);
 
-NSString * AFQueryStringFromParametersWithEncoding(NSDictionary *parameters, NSStringEncoding stringEncoding) {
+NSString * CHQueryStringFromParametersWithEncoding(NSDictionary *parameters, NSStringEncoding stringEncoding) {
     NSMutableArray *mutablePairs = [NSMutableArray array];
-    for (AFQueryStringPair *pair in AFQueryStringPairsFromDictionary(parameters)) {
+    for (CHQueryStringPair *pair in CHQueryStringPairsFromDictionary(parameters)) {
         [mutablePairs addObject:[pair URLEncodedStringValueWithEncoding:stringEncoding]];
     }
     
     return [mutablePairs componentsJoinedByString:@"&"];
 }
 
-NSArray * AFQueryStringPairsFromDictionary(NSDictionary *dictionary) {
-    return AFQueryStringPairsFromKeyAndValue(nil, dictionary);
+NSArray * CHQueryStringPairsFromDictionary(NSDictionary *dictionary) {
+    return CHQueryStringPairsFromKeyAndValue(nil, dictionary);
 }
 
-NSArray * AFQueryStringPairsFromKeyAndValue(NSString *key, id value) {
+NSArray * CHQueryStringPairsFromKeyAndValue(NSString *key, id value) {
     NSMutableArray *mutableQueryStringComponents = [NSMutableArray array];
     
     if([value isKindOfClass:[NSDictionary class]]) {
@@ -98,22 +98,22 @@ NSArray * AFQueryStringPairsFromKeyAndValue(NSString *key, id value) {
         [[[value allKeys] sortedArrayUsingDescriptors:[NSArray arrayWithObject:sortDescriptor]] enumerateObjectsUsingBlock:^(id nestedKey, NSUInteger idx, BOOL *stop) {
             id nestedValue = [value objectForKey:nestedKey];
             if (nestedValue) {
-                [mutableQueryStringComponents addObjectsFromArray:AFQueryStringPairsFromKeyAndValue((key ? [NSString stringWithFormat:@"%@[%@]", key, nestedKey] : nestedKey), nestedValue)];
+                [mutableQueryStringComponents addObjectsFromArray:CHQueryStringPairsFromKeyAndValue((key ? [NSString stringWithFormat:@"%@[%@]", key, nestedKey] : nestedKey), nestedValue)];
             }
         }];
     } else if([value isKindOfClass:[NSArray class]]) {
         [value enumerateObjectsUsingBlock:^(id nestedValue, NSUInteger idx, BOOL *stop) {
-            [mutableQueryStringComponents addObjectsFromArray:AFQueryStringPairsFromKeyAndValue([NSString stringWithFormat:@"%@[]", key], nestedValue)];
+            [mutableQueryStringComponents addObjectsFromArray:CHQueryStringPairsFromKeyAndValue([NSString stringWithFormat:@"%@[]", key], nestedValue)];
         }];
     } else {
-        [mutableQueryStringComponents addObject:[[AFQueryStringPair alloc] initWithField:key value:value]];
+        [mutableQueryStringComponents addObject:[[CHQueryStringPair alloc] initWithField:key value:value]];
     }
     
     return mutableQueryStringComponents;
 }
 
 
-static inline NSDictionary *AFParametersFromQueryString(NSString *queryString)
+static inline NSDictionary *CHParametersFromQueryString(NSString *queryString)
 {
     NSMutableDictionary *parameters = [NSMutableDictionary dictionary];
     if (queryString)
@@ -210,14 +210,14 @@ static inline NSDictionary *AFParametersFromQueryString(NSString *queryString)
     {
         [allParameters setValue:OAUTH_SCOPE_PARAM forKey:@"scope"];
     }
-    NSString *parametersString = AFQueryStringFromParametersWithEncoding(allParameters, NSUTF8StringEncoding);
+    NSString *parametersString = CHQueryStringFromParametersWithEncoding(allParameters, NSUTF8StringEncoding);
     
     NSString *baseString = [REQUEST_TOKEN_METHOD stringByAppendingFormat:@"&%@&%@", request_url.utf8AndURLEncode, parametersString.utf8AndURLEncode];
     NSString *secretString = [oauth_consumer_secret.utf8AndURLEncode stringByAppendingString:@"&"];
     NSString *oauth_signature = [self.class signClearText:baseString withSecret:secretString];
     [allParameters setValue:oauth_signature forKey:@"oauth_signature"];
     
-    parametersString = AFQueryStringFromParametersWithEncoding(allParameters, NSUTF8StringEncoding);
+    parametersString = CHQueryStringFromParametersWithEncoding(allParameters, NSUTF8StringEncoding);
     
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:request_url]];
     request.HTTPMethod = REQUEST_TOKEN_METHOD;
@@ -237,7 +237,7 @@ static inline NSDictionary *AFParametersFromQueryString(NSString *queryString)
      {
          dispatch_async(dispatch_get_main_queue(), ^{
              NSString *reponseString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-             completion(nil, AFParametersFromQueryString(reponseString));
+             completion(nil, CHParametersFromQueryString(reponseString));
          });
      }];
 }
@@ -289,7 +289,7 @@ static inline NSDictionary *AFParametersFromQueryString(NSString *queryString)
         if ([urlWithoutQueryString rangeOfString:OAUTH_CALLBACK].location != NSNotFound)
         {
             NSString *queryString = [request.URL.absoluteString substringFromIndex:[request.URL.absoluteString rangeOfString:@"?"].location + 1];
-            NSDictionary *parameters = AFParametersFromQueryString(queryString);
+            NSDictionary *parameters = CHParametersFromQueryString(queryString);
             _delegateHandler(parameters);
             _delegateHandler = nil;
         }
@@ -310,14 +310,14 @@ static inline NSDictionary *AFParametersFromQueryString(NSString *queryString)
     [allParameters setValue:oauth_verifier         forKey:@"oauth_verifier"];
     [allParameters setValue:oauth_token            forKey:@"oauth_token"];
     
-    NSString *parametersString = AFQueryStringFromParametersWithEncoding(allParameters, NSUTF8StringEncoding);
+    NSString *parametersString = CHQueryStringFromParametersWithEncoding(allParameters, NSUTF8StringEncoding);
     
     NSString *baseString = [ACCESS_TOKEN_METHOD stringByAppendingFormat:@"&%@&%@", access_url.utf8AndURLEncode, parametersString.utf8AndURLEncode];
     NSString *secretString = [oauth_consumer_secret.utf8AndURLEncode stringByAppendingFormat:@"&%@", oauth_token_secret.utf8AndURLEncode];
     NSString *oauth_signature = [self.class signClearText:baseString withSecret:secretString];
     [allParameters setValue:oauth_signature forKey:@"oauth_signature"];
     
-    parametersString = AFQueryStringFromParametersWithEncoding(allParameters, NSUTF8StringEncoding);
+    parametersString = CHQueryStringFromParametersWithEncoding(allParameters, NSUTF8StringEncoding);
     
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:access_url]];
     request.HTTPMethod = ACCESS_TOKEN_METHOD;
@@ -337,7 +337,7 @@ static inline NSDictionary *AFParametersFromQueryString(NSString *queryString)
      {
          dispatch_async(dispatch_get_main_queue(), ^{
              NSString *reponseString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-             completion(nil, AFParametersFromQueryString(reponseString));
+             completion(nil, CHParametersFromQueryString(reponseString));
          });
      }];
 }
@@ -380,7 +380,7 @@ static inline NSDictionary *AFParametersFromQueryString(NSString *queryString)
     {
         [allParameters addEntriesFromDictionary:queryParameters];
     }
-    NSString *parametersString = AFQueryStringFromParametersWithEncoding(allParameters, NSUTF8StringEncoding);
+    NSString *parametersString = CHQueryStringFromParametersWithEncoding(allParameters, NSUTF8StringEncoding);
     
     NSString *oauth_consumer_secret = CONSUMER_SECRET;
     NSString *baseString = [HTTPmethod stringByAppendingFormat:@"&%@&%@", request_url.utf8AndURLEncode, parametersString.utf8AndURLEncode];
@@ -388,7 +388,7 @@ static inline NSDictionary *AFParametersFromQueryString(NSString *queryString)
     NSString *oauth_signature = [self.class signClearText:baseString withSecret:secretString];
     [allParameters setValue:oauth_signature forKey:@"oauth_signature"];
     
-    if (queryParameters) queryString = AFQueryStringFromParametersWithEncoding(queryParameters, NSUTF8StringEncoding);
+    if (queryParameters) queryString = CHQueryStringFromParametersWithEncoding(queryParameters, NSUTF8StringEncoding);
     if (queryString) request_url = [request_url stringByAppendingFormat:@"?%@", queryString];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:request_url]];
     request.HTTPMethod = HTTPmethod;
