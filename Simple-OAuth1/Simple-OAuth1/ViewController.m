@@ -10,6 +10,9 @@
 #import "OAuth1Controller.h"
 #import "LoginWebViewController.h"
 
+#define MY_CONUSMER_KEY @"YOUR KEY HERE"
+#define MY_CONUSMER_SECRET @"YOUR SECRET HERE"
+
 @interface ViewController ()
 
 @property (nonatomic, strong) OAuth1Controller *oauth1Controller;
@@ -88,6 +91,9 @@
 {
     if (_oauth1Controller == nil) {
         _oauth1Controller = [[OAuth1Controller alloc] init];
+        _oauth1Controller.consumerKey = MY_CONUSMER_KEY;
+        _oauth1Controller.consumerSecret = MY_CONUSMER_SECRET;
+        _oauth1Controller.oauthCallback = @"http://www.goodreads.com";
     }
     return _oauth1Controller;
 }
@@ -95,18 +101,20 @@
 
 - (IBAction)testGETRequest
 {
-    // Tumblr GET Request
-//    NSString *path = @"blog/chrhansen.tumblr.com/info";                                       // Insert your Tumblr name here
-//    NSDictionary *parameters = @{@"api_key" : @"The CONSUMER_KEY from OAuth1Controller.m"};   // Insert your Tumblr API-key/CONSUMER_KEY here
+    // Goodreads GET Requests that are signed with OAuth return HTML rather than XML...
+    
+    // GoodReads GET Request
+    NSString *path = @"user/show";
+    NSDictionary *parameters = @{YOUR_GOODREADS_USERNAME : @"username", MY_CONUSMER_KEY : @"key"};
     
     
-    // LinkedIn GET Request
-    NSString *path = @"people/~";
-    NSDictionary *parameters = @{@"format" : @"json"};
+    OAuth1Controller *oauth1Controller = [[OAuth1Controller alloc] init];
     
+    oauth1Controller.consumerKey = MY_CONUSMER_KEY;
+    oauth1Controller.consumerSecret = MY_CONUSMER_SECRET;
     
     // Build authorized request based on path, parameters, tokens, timestamp etc.
-    NSURLRequest *preparedRequest = [OAuth1Controller preparedRequestForPath:path
+    NSURLRequest *preparedRequest = [oauth1Controller preparedRequestForPath:path
                                                                   parameters:parameters
                                                                   HTTPmethod:@"GET"
                                                                   oauthToken:self.oauthToken
@@ -128,17 +136,16 @@
 - (IBAction)testPOSTRequest
 {
     // Tumblr POST Request
-    NSString *path = @"blog/YOUR_TUMBLR_NAME.tumblr.com/post";            // set your Tumblr name here
-    NSDictionary *parameters = @{@"type"  : @"text",
-                                 @"title" : @"Simple OAuth1.0a for iOS by Christian Hansen",
-                                 @"body"  : @"https://github.com/Christian-Hansen/simple-oauth1"};
+    NSString *path = @"api/auth_user";
     
-    // LinkedIn POST Request
-    // Not implemented, see http://developer.linkedin.com/
+    OAuth1Controller *oauth1Controller = [[OAuth1Controller alloc] init];
+    
+    oauth1Controller.consumerKey = MY_CONUSMER_KEY;
+    oauth1Controller.consumerSecret = MY_CONUSMER_SECRET;
     
     // Build authorized request based on path, parameters, tokens, timestamp etc.
-    NSURLRequest *preparedRequest = [OAuth1Controller preparedRequestForPath:path
-                                                                  parameters:parameters
+    NSURLRequest *preparedRequest = [oauth1Controller preparedRequestForPath:path
+                                                                  parameters:nil
                                                                   HTTPmethod:@"POST"
                                                                   oauthToken:self.oauthToken
                                                                  oauthSecret:self.oauthTokenSecret];
